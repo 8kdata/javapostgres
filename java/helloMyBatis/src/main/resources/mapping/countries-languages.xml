@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.eightkdata.training.javapostgres.hellomybatis.mapper.CountriesLanguagesMapper">
+
+    <select id="getCountriesLanguagesByPercentage" parameterType="int" resultType="com.eightkdata.training.javapostgres.hellomybatis.model.CountriesLanguage">
+        SELECT    string_agg(countrycode, ',') AS countries, language, avg(percentage) AS averagePercentage
+        FROM      countrylanguage
+        WHERE     isofficial
+        GROUP BY  language
+        HAVING    avg(percentage) > #{percentage}
+        ORDER BY  averagePercentage DESC
+    </select>
+
+</mapper>

@@ -1,0 +1,27 @@
+
+About the World database
+========================
+
+http://pgfoundry.org/projects/dbsamples/
+
+World is a port of the example database available for MySQL on the mysql.com
+website.
+
+It is a simple 1:1 port and no attempt has been made to redesign the schema to
+better suit PostgreSQL.
+
+It is useful for comparison purposes and for learning how to execute simple
+queries and create simple tables, but is not particularly useful for exercising
+the advanced features of PostgreSQL or benchmarking.
+
+
+Usage
+=====
+
+Execute the script world.sql as a database user with CREATE USER DATABASE privileges. For example:
+
+	sudo su postgres -c "psql < world.sql"		# YMMV
+
+You may now connect to the database with the user worlduser. The password is 'HahodOid3':
+
+	psql -h localhost world worlduser

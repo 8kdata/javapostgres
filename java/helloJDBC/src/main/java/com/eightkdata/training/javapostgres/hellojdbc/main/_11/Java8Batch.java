@@ -5,6 +5,7 @@
 package com.eightkdata.training.javapostgres.hellojdbc.main._11;
 
 import com.eightkdata.training.javapostgres.hellojdbc.config.PropertiesFileDbConfig;
+import com.eightkdata.training.javapostgres.hellojdbc.main._11.CountryLanguageDAO.Columns;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -45,7 +46,10 @@ public class Java8Batch {
             // Adding new languages using a batch of inserts.
             countryLanguageDAO.insertCountriesLanguages(countryLanguages);
             
-            System.out.println("countrycode,language,isofficial,percentage");
+            System.out.println(
+                Columns.COUNTRY_CODE.getColumnName() + "," + Columns.LANGUAGE.getColumnName() + ","
+                    + Columns.IS_OFFICIAL.getColumnName() + "," + Columns.PERCENTAGE.getColumnName()
+            );
             
             // Removing added languages using a batch of deletes.
             countryLanguageDAO.getCountryLanguages("ITA")

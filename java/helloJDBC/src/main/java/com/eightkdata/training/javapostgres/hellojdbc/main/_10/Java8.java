@@ -5,6 +5,7 @@
 package com.eightkdata.training.javapostgres.hellojdbc.main._10;
 
 import com.eightkdata.training.javapostgres.hellojdbc.config.PropertiesFileDbConfig;
+import com.eightkdata.training.javapostgres.hellojdbc.main._09.CountriesLanguageDAO.Columns;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -42,6 +43,10 @@ public class Java8 {
 
         if(countriesLanguages != null) {
             // Print query results
+            System.out.println(
+                Columns.COUNTRIES.getColumnName() + "," + Columns.LANGUAGE.getColumnName() + ","
+                      + Columns.AVG_PERCENTAGE.getColumnName()
+            );
             countriesLanguages.forEach(
                     r -> System.out.println(r.getCountries() + "," + r.getLanguage() + "," + r.getAveragePercentage())
             );

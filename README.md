@@ -10,8 +10,9 @@ Included in the `java` directory are some maven-ized Java projects:
 
 * `helloJDBC`: an iterative approach to JDBC, where a simple example is improved across several executable programs, adding better JDBC constructs and Java best-practices
 * `hellojOOQ`: a simple project to show how to take back control of your SQL with [jOOQ][2]
-* `helloMyBatis`: a simple project so show how to use the [MyBatis][3] mapper
+* `helloMyBatis`: a simple project to show how to use the [MyBatis][3] mapper
 * `helloProcessBuilder`: connect to PostgreSQL via the stdin
+* `helloHikariCPandFlexiPool`: a simple project to show how to use [HikariCP][5] and [FlexyiPool][6]
 
 
 Example database
@@ -24,3 +25,5 @@ Included in the `db` directory is an example database used by the projects in th
 [2]: http://www.jooq.org/
 [3]: http://blog.mybatis.org/
 [4]: http://pgfoundry.org/projects/dbsamples/
+[5]: https://brettwooldridge.github.io/HikariCP/
+[6]: https://github.com/vladmihalcea/flexy-pool

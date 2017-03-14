@@ -8,10 +8,11 @@
 
     <groupId>com.8kdata.training.javapostgres</groupId>
     <artifactId>hello-jooq</artifactId>
-    <version>1.0</version>
+    <version>1.1</version>
 
     <properties>
-        <jooqVersion>3.3.2</jooqVersion>
+        <pgjdbc.version>42.0.0</pgjdbc.version>
+        <jooq.version>3.9.1</jooq.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -19,12 +20,12 @@
         <dependency>
             <groupId>org.jooq</groupId>
             <artifactId>jooq</artifactId>
-            <version>${jooqVersion}</version>
+            <version>${jooq.version}</version>
         </dependency>
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>9.3-1101-jdbc41</version>
+            <version>${pgjdbc.version}</version>
         </dependency>
     </dependencies>
 
@@ -35,15 +36,15 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.1</version>
                 <configuration>
-                    <!-- force Java version to 7 so that it compiles with Maven and doesn't require to set it in the IDE -->
-                    <source>7</source>
-                    <target>7</target>
+                    <!-- force Java version to 8 so that it compiles with Maven and doesn't require to set it in the IDE -->
+                    <source>8</source>
+                    <target>8</target>
                 </configuration>
             </plugin>
             <plugin>
                 <groupId>org.jooq</groupId>
                 <artifactId>jooq-codegen-maven</artifactId>
-                <version>${jooqVersion}</version>
+                <version>${jooq.version}</version>
 
                 <executions>
                     <execution>
@@ -57,7 +58,7 @@
                     <dependency>
                         <groupId>org.postgresql</groupId>
                         <artifactId>postgresql</artifactId>
-                        <version>9.3-1101-jdbc41</version>
+                        <version>${pgjdbc.version}</version>
                     </dependency>
                 </dependencies>
 
@@ -83,7 +84,59 @@
                     </generator>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>1.7</version>
+                <executions>
+                    <execution>
+                       <id>add-jooq-source</id>
+                       <phase>generate-sources</phase>
+                       <goals>
+                           <goal>add-source</goal>
+                       </goals>
+                       <configuration>
+                           <sources>
+                               <source>target/generated-sources/jooq</source>
+                           </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
+        <pluginManagement>
+            <plugins>
+                <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+                <plugin>
+                    <groupId>org.eclipse.m2e</groupId>
+                    <artifactId>lifecycle-mapping</artifactId>
+                    <version>1.0.0</version>
+                    <configuration>
+                        <lifecycleMappingMetadata>
+                            <pluginExecutions>
+                                <pluginExecution>
+                                    <pluginExecutionFilter>
+                                        <groupId>org.jooq</groupId>
+                                        <artifactId>
+                                            jooq-codegen-maven
+                                        </artifactId>
+                                        <versionRange>
+                                            [3.3.2,)
+                                        </versionRange>
+                                        <goals>
+                                            <goal>generate</goal>
+                                        </goals>
+                                    </pluginExecutionFilter>
+                                    <action>
+                                        <execute></execute>
+                                    </action>
+                                </pluginExecution>
+                            </pluginExecutions>
+                        </lifecycleMappingMetadata>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
     </build>
 
 </project>

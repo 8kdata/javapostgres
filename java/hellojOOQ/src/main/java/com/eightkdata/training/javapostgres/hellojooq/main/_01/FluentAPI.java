@@ -2,17 +2,24 @@
  * Copyright (c) 2014, 8Kdata Technology
  */
 
-package com.eightkdata.training.javapostgres.hellojooq.main;
+package com.eightkdata.training.javapostgres.hellojooq.main._01;
 
-import com.eightkdata.training.javapostgres.hellojooq.model.CountriesLanguage;
-import com.eightkdata.training.javapostgres.hellojooq.dao.CountriesLanguageDAO;
 import com.eightkdata.training.javapostgres.hellojooq.config.PropertiesFileDbConfig;
+import com.eightkdata.training.javapostgres.hellojooq.dao.CountriesLanguageDAO;
+import com.eightkdata.training.javapostgres.hellojooq.model.CountriesLanguage;
+import org.jooq.DSLContext;
+import org.jooq.Record3;
+import org.jooq.Result;
+import org.jooq.SQLDialect;
 import org.jooq.exception.DataAccessException;
+import org.jooq.impl.DSL;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -20,8 +27,12 @@ import java.util.List;
  * Created: 18/05/14
  *
  * @author Alvaro Hernandez <aht@8kdata.com>
+ * 
+ * Updated: 10/03/17
+ * 
+ * @author Matteo Melli <matteom@8kdata.com>
  */
-public class Main {
+public class FluentAPI {
     public static void main(String[] args) {
         PropertiesFileDbConfig config;
         try {
@@ -37,9 +48,21 @@ public class Main {
                         config.getPostgresJdbcUrl(), config.getDbUser(), config.getDbPassword()
                 )
         ) {
+            DSLContext context = DSL.using(connection, SQLDialect.POSTGRES);
+            CountriesLanguageDAO dao = new CountriesLanguageDAO(context);
             try {
-                CountriesLanguageDAO countriesLanguageDAO = new CountriesLanguageDAO(connection);
-                countriesLanguages = countriesLanguageDAO.getCountriesLanguages(95);
+              int percentage = 95;
+              Result<Record3<String,String,BigDecimal>> result = dao
+                  // Retrieve the select object
+                  .selectCountriesLanguages(percentage)
+                  
+                  // And fetch the result
+                  .fetch();
+              
+              countriesLanguages = new ArrayList<>(result.size());
+              for(Record3<String,String,BigDecimal> record : result) {
+                  countriesLanguages.add(dao.toCountriesLanguage(record));
+              }
             } catch(DataAccessException e) {
                 System.err.println("Error executing the query");
                 e.printStackTrace();

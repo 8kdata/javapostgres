@@ -5,6 +5,7 @@
 package com.eightkdata.training.javapostgres.hellojdbc.main._10;
 
 import com.eightkdata.training.javapostgres.hellojdbc.config.PropertiesFileDbConfig;
+import com.eightkdata.training.javapostgres.hellojdbc.main._09.CountriesLanguageDAO.Columns;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -12,13 +13,11 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.List;
 
-import static com.eightkdata.training.javapostgres.hellojdbc.main._10.CountriesLanguageDAO.Columns;
-
 
 /**
  * @author Alvaro Hernandez <aht@8kdata.com>
  */
-public class Java8BetterModelAndDAO {
+public class Java8 {
     public static void main(String[] args) {
         PropertiesFileDbConfig config;
         try {
@@ -45,8 +44,8 @@ public class Java8BetterModelAndDAO {
         if(countriesLanguages != null) {
             // Print query results
             System.out.println(
-                    Columns.COUNTRIES.getColumnName() + "," + Columns.LANGUAGE.getColumnName() + ","
-                            + Columns.AVG_PERCENTAGE.getColumnName()
+                Columns.COUNTRIES.getColumnName() + "," + Columns.LANGUAGE.getColumnName() + ","
+                      + Columns.AVG_PERCENTAGE.getColumnName()
             );
             countriesLanguages.forEach(
                     r -> System.out.println(r.getCountries() + "," + r.getLanguage() + "," + r.getAveragePercentage())

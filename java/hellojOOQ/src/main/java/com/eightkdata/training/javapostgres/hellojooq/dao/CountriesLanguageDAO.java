@@ -4,43 +4,35 @@
 
 package com.eightkdata.training.javapostgres.hellojooq.dao;
 
-import com.eightkdata.training.javapostgres.hellojooq.model.CountriesLanguage;
-import org.jooq.DSLContext;
-import org.jooq.Record3;
-import org.jooq.Result;
-import org.jooq.SQLDialect;
-import org.jooq.exception.DataAccessException;
-import org.jooq.impl.DSL;
-
-import java.math.BigDecimal;
-import java.sql.Connection;
-import java.util.ArrayList;
-import java.util.List;
-
 import static com.eightkdata.training.javapostgres.hellojooq.model.tables.Countrylanguage.COUNTRYLANGUAGE;
 import static org.jooq.impl.DSL.avg;
 import static org.jooq.impl.DSL.listAgg;
 
+import com.eightkdata.training.javapostgres.hellojooq.model.CountriesLanguage;
+import com.eightkdata.training.javapostgres.hellojooq.model.tables.records.CountrylanguageRecord;
+import org.jooq.DSLContext;
+import org.jooq.Delete;
+import org.jooq.Insert;
+import org.jooq.Record;
+import org.jooq.Record3;
+import org.jooq.Select;
+import org.jooq.exception.DataAccessException;
+
+import java.math.BigDecimal;
+
 /**
  * @author Alvaro Hernandez <aht@8kdata.com>
+ * @author Matteo Melli <matteom@8kdata.com>
  */
 public class CountriesLanguageDAO {
     private final DSLContext context;
 
-    public CountriesLanguageDAO(Connection connection) {
-        context = DSL.using(connection, SQLDialect.POSTGRES);
+    public CountriesLanguageDAO(DSLContext context) {
+        this.context = context;
     }
 
-    private CountriesLanguage getInstanceFromRecord(Record3<String, String, BigDecimal> record) {
-        return new CountriesLanguage(
-                (String) record.getValue("countries"),      // Get field by String ("as" name)
-                record.getValue(COUNTRYLANGUAGE.LANGUAGE),  // Get field in type-safe manner
-                record.value3().doubleValue()               // Get field by position in the query
-        );
-    }
-
-    public List<CountriesLanguage> getCountriesLanguages(int percentage) throws DataAccessException {
-        Result<Record3<String,String,BigDecimal>> result = context
+    public Select<Record3<String,String,BigDecimal>> selectCountriesLanguages(int percentage) throws DataAccessException {
+        return context
                 // jOOQ helps us generate an advanced, yet type-safe query
                 .select(
                         listAgg(COUNTRYLANGUAGE.COUNTRYCODE, ",")
@@ -54,13 +46,33 @@ public class CountriesLanguageDAO {
                 .having(avg(COUNTRYLANGUAGE.PERCENTAGE).greaterOrEqual(BigDecimal.valueOf(percentage)))
                 .orderBy(avg(COUNTRYLANGUAGE.PERCENTAGE).desc())
                 // end of query
-        .fetch();
+        ;
+    }
 
-        List<CountriesLanguage> countriesLanguages = new ArrayList<>(result.size());
-        for(Record3<String,String,BigDecimal> record : result) {
-            countriesLanguages.add(getInstanceFromRecord(record));
-        }
+    public Select<Record> selectCountryLanguage(String countryCode, String language) {
+      return context
+          .select().from(COUNTRYLANGUAGE).where(COUNTRYLANGUAGE.COUNTRYCODE.eq(countryCode)
+              .and(COUNTRYLANGUAGE.LANGUAGE.eq(language)));
+    }
 
-        return countriesLanguages;
+    public Insert<CountrylanguageRecord> insertCountryLanguage(String countryCode, String language, boolean isOfficial, float percentage) {
+      return context
+        .insertInto(COUNTRYLANGUAGE)
+        .values(countryCode, language, isOfficial, percentage);
+    }
+
+    public Delete<CountrylanguageRecord> deleteCountryLanguage(String countryCode, String language) {
+      return context
+          .delete(COUNTRYLANGUAGE)
+          .where(COUNTRYLANGUAGE.COUNTRYCODE.eq(countryCode)
+              .and(COUNTRYLANGUAGE.LANGUAGE.eq(language)));
+    }
+
+    public CountriesLanguage toCountriesLanguage(Record3<String, String, BigDecimal> record) {
+        return new CountriesLanguage(
+                (String) record.getValue("countries"),      // Get field by String ("as" name)
+                record.getValue(COUNTRYLANGUAGE.LANGUAGE),  // Get field in type-safe manner
+                record.value3().doubleValue()               // Get field by position in the query
+        );
     }
 }

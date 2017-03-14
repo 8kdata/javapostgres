@@ -12,7 +12,7 @@ import java.sql.*;
 /**
  * @author Alvaro Hernandez <aht@8kdata.com>
  */
-public class Java7 {
+public class Java7AutoCloseable {
     private static final String QUERY = "SELECT string_agg(countrycode, ' ') AS countries, language, "
             + " to_char(avg(percentage), '999.00') AS avg_percentage"
             + " FROM countrylanguage WHERE isofficial GROUP BY language HAVING avg(percentage) > ?"

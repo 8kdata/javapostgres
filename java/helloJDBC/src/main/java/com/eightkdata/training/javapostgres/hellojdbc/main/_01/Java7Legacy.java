@@ -14,7 +14,7 @@ import java.sql.SQLException;
 /**
  * @author Alvaro Hernandez <aht@8kdata.com>
  */
-public class Java5 {
+public class Java7Legacy {
     // Do not use this code as an example. It has some errors fixed in following examples
 
     public static void main(String[] args) throws ClassNotFoundException, SQLException {

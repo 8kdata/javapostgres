@@ -14,7 +14,7 @@ import java.sql.SQLException;
 /**
  * @author Alvaro Hernandez <aht@8kdata.com>
  */
-public class Java6 {
+public class Java7Fixed {
     public static void main(String[] args) {
         // No need to explicitly load the driver if using Java >= 6 and JDBC >= 4
 

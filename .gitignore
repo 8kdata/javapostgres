@@ -1,3 +1,6 @@
-.idea
-java/*/target
-java/*/*.iml
+**/target/
+**/.idea/
+**/*.iml
+**/.settings/
+**/.classpath
+**/.project

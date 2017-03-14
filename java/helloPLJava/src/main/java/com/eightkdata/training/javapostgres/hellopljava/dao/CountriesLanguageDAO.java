@@ -12,6 +12,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,6 +53,18 @@ public class CountriesLanguageDAO {
                 (String[]) rs.getObject(1), rs.getString(2), rs.getDouble(3)
         );
     }
+    
+    public boolean assignRowValues(ResultSet resultSet, ResultSet receiver) throws SQLException {
+      if (resultSet.next()) {
+          receiver.updateObject(1, resultSet.getObject(1));
+          receiver.updateString(2, resultSet.getString(2));
+          receiver.updateDouble(3, resultSet.getDouble(3));
+          
+          return true;
+      }
+      
+      return false;
+    }
 
     public List<CountriesLanguage> getCountriesLanguages(int percentage) throws SQLException {
         try(
@@ -70,12 +83,11 @@ public class CountriesLanguageDAO {
         }
     }
 
-    public ResultSet getCountriesLanguagesResultSet(int percentage) throws SQLException {
+    public PreparedStatement getCountriesLanguagesStatement(int percentage) throws SQLException {
         // Perform a query and return the result. Statement and ResultSet are not freed (closed)
         PreparedStatement statement = connection.prepareStatement(QUERY);
-        // Set the parameters and execute the query
+        // Set the parameters and return statement
         statement.setInt(1, percentage);
-
-        return statement.executeQuery();
+        return statement;
     }
 }

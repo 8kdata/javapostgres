@@ -2,9 +2,9 @@
  * Copyright (c) 2014, 8Kdata Technology
  */
 
-package com.eightkdata.training.javapostgres.hellohikaricpflxp.dao;
+package com.eightkdata.training.javapostgres.hellopool.dao;
 
-import com.eightkdata.training.javapostgres.hellohikaricpflxp.model.CountriesLanguage;
+import com.eightkdata.training.javapostgres.hellopool.model.CountriesLanguage;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

@@ -2,7 +2,7 @@
  * Copyright (c) 2014, 8Kdata Technology
  */
 
-package com.eightkdata.training.javapostgres.hellohikaricpflxp.dao;
+package com.eightkdata.training.javapostgres.hellopool.dao;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

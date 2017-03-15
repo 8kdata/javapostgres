@@ -2,7 +2,7 @@
  * Copyright (c) 2014, 8Kdata Technology
  */
 
-package com.eightkdata.training.javapostgres.hellohikaricpflxp.model;
+package com.eightkdata.training.javapostgres.hellopool.model;
 
 import java.util.Arrays;
 import java.util.Collection;

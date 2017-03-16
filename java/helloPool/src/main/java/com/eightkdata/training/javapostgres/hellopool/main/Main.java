@@ -38,14 +38,14 @@ import javax.sql.DataSource;
 public class Main {
 
   // HikariCP parameters
-  private static final int MAXIMUM_POOL_SIZE = 9;
+  private static final int MAXIMUM_POOL_SIZE = 8;
   private static final int MINIMUM_IDLE_SIZE = 0;
   private static final long IDLE_TIMEOUT_MILLIS = MINUTES.toMillis(5);
-  private static final long CONNECTION_TIMEOUT_MILLIS = SECONDS.toMillis(10);
+  private static final long CONNECTION_TIMEOUT_MILLIS = 250;
 
   // FlexyPool parameters
-  private static final int MAX_OVERFLOW_POOL_SIZE = 5;
-  private static final int MAX_RETRY_ATTEMPS = 5;
+  private static final int MAX_OVERFLOW_POOL_SIZE = 16;
+  private static final int MAX_RETRY_ATTEMPS = 10;
   
   // Threads Pool parameters
   private static final int POOL_THREADS_NUMBER = 64;

@@ -6,8 +6,10 @@ package com.eightkdata.training.javapostgres.hellopool.main;
 
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import com.codahale.metrics.ConsoleReporter;
+import com.codahale.metrics.CsvReporter;
 import com.codahale.metrics.ExponentiallyDecayingReservoir;
 import com.codahale.metrics.MetricRegistry;
 import com.eightkdata.training.javapostgres.hellopool.dao.CountriesLanguageDAO;
@@ -22,9 +24,16 @@ import com.vladmihalcea.flexypool.strategy.RetryConnectionAcquiringStrategy;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.lang.ProcessBuilder.Redirect;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -41,7 +50,7 @@ public class Main {
   private static final int MAXIMUM_POOL_SIZE = 8;
   private static final int MINIMUM_IDLE_SIZE = 0;
   private static final long IDLE_TIMEOUT_MILLIS = MINUTES.toMillis(5);
-  private static final long CONNECTION_TIMEOUT_MILLIS = 250;
+  private static final long CONNECTION_TIMEOUT_MILLIS = MILLISECONDS.toMillis(250);
 
   // FlexyPool parameters
   private static final int MAX_OVERFLOW_POOL_SIZE = 16;
@@ -58,7 +67,8 @@ public class Main {
     FlexyPoolDataSource<HikariDataSource> dataSource = wrapDataSource(embeddableDataSource, metric);
     dataSource.start();
 
-    printMetrics(metric);
+    ConsoleReporter consoleReporter = printMetrics(metric);
+    CsvReporter csvReporter = storeMetrics(metric);
 
     ExecutorService pool = Executors.newFixedThreadPool(POOL_THREADS_NUMBER);
     List<CompletableFuture<?>> futures = new ArrayList<>();
@@ -74,6 +84,14 @@ public class Main {
 
     dataSource.stop();
     embeddableDataSource.close();
+    consoleReporter.stop();
+    csvReporter.stop();
+    
+    try {
+      printMetricsGraphs();
+    } catch(IOException | InterruptedException e) {
+      e.printStackTrace();
+    }
   }
 
 
@@ -163,16 +181,78 @@ public class Main {
   }
 
   /**
-   * Print metrics every 10 seconds
+   * Print metrics every 5 seconds
    * 
    * @param metric
    */
-  private static void printMetrics(MetricRegistry metric) {
+  private static ConsoleReporter printMetrics(MetricRegistry metric) {
     ConsoleReporter consoleReporter = ConsoleReporter.forRegistry(metric)
         .convertRatesTo(TimeUnit.SECONDS).convertDurationsTo(TimeUnit.MILLISECONDS).build();
-    consoleReporter.start(1, TimeUnit.SECONDS);
+    consoleReporter.start(5, TimeUnit.SECONDS);
+    return consoleReporter;
   }
 
+  /**
+   * Store metrics every second
+   * 
+   * @param metric
+   */
+  private static CsvReporter storeMetrics(MetricRegistry metric) {
+    File target = new File("target");
+    Arrays.asList(target.listFiles(new FilenameFilter() {
+      @Override
+      public boolean accept(File dir, String name) {
+        return name.endsWith(".csv");
+      }
+    })).stream().forEach(f -> f.delete());
+    CsvReporter csvReporter = CsvReporter.forRegistry(metric)
+        .convertRatesTo(TimeUnit.SECONDS).convertDurationsTo(TimeUnit.MILLISECONDS)
+        .build(target);
+    csvReporter.start(1, TimeUnit.SECONDS);
+    return csvReporter;
+  }
+
+  /**
+   * Print metrics graphs for each metric using gnuplot
+   * @throws IOException
+   * @throws InterruptedException 
+   */
+  private static void printMetricsGraphs() throws IOException, InterruptedException {
+    for (String plotCommand : new String[] {
+        "plot 'target/javaPgPool.pool.ActiveConnections.csv' using 1:2 with lines notitle",
+        "plot 'target/javaPgPool.pool.ConnectionCreation.csv' using 1:4 with lines notitle",
+        "plot 'target/javaPgPool.pool.ConnectionTimeoutRate.csv' using 1:3 with lines notitle",
+        "plot 'target/javaPgPool.pool.IdleConnections.csv' using 1:2 with lines notitle",
+        "plot 'target/javaPgPool.pool.PendingConnections.csv' using 1:2 with lines notitle",
+        "plot 'target/javaPgPool.pool.TotalConnections.csv' using 1:2 with lines notitle",
+        "plot 'target/javaPgPool.pool.Usage.csv' using 1:4 with lines notitle",
+        "plot 'target/javaPgPool.pool.Wait.csv' using 1:4 with lines notitle",
+        "plot 'target/concurrentConnectionRequestsHistogram.csv' using 1:4 with lines notitle",
+        "plot 'target/concurrentConnectionsHistogram.csv' using 1:4 with lines notitle",
+        "plot 'target/connectionAcquireMillis.csv' using 1:4 with lines notitle",
+        "plot 'target/connectionLeaseMillis.csv' using 1:4 with lines notitle",
+        "plot 'target/maxPoolSizeHistogram.csv' using 1:4 with lines notitle",
+        "plot 'target/overallConnectionAcquireMillis.csv' using 1:4 with lines notitle",
+        "plot 'target/overflowPoolSizeHistogram.csv' using 1:4 with lines notitle",
+        "plot 'target/retryAttemptsHistogram.csv' using 1:4 with lines notitle",
+    }) {
+      ProcessBuilder processBuilder = new ProcessBuilder("gnuplot")
+          .redirectOutput(Redirect.INHERIT)
+          .redirectError(Redirect.INHERIT);
+      Process process = processBuilder.start();
+      
+      System.out.println(plotCommand);
+      try (BufferedWriter writer =
+          new BufferedWriter(new OutputStreamWriter(process.getOutputStream()))) {
+        writer.write("set terminal dumb\n");
+        writer.write("set key autotitle columnhead\n");
+        writer.write("set datafile separator ','\n");
+        writer.write(plotCommand);
+      }
+  
+      process.waitFor();
+    }
+  }
 
   private static void execQuery(DataSource ds) {
     try (Connection connection = getConnection(ds)) {
